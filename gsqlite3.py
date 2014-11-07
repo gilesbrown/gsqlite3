@@ -4,15 +4,14 @@ The strategy used is a simple one.  All potentially time consuming
 operations are run using the threadpool attached to the ``gevent`` hub.
 """
 
-import sqlite3
 from functools import wraps
 
+# We want to look as much like the sqlite3 DBAPI module as possible.
+# The easiest way of exposing the same module interface is to do this.
+from sqlite3 import *
+import sqlite3
+
 from gevent.hub import get_hub
-
-
-paramstyle = sqlite3.paramstyle
-sqlite_version_info = sqlite3.sqlite_version_info,
-version_info = sqlite3.version_info
 
 
 @wraps(sqlite3.connect)
