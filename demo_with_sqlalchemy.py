@@ -1,5 +1,15 @@
+from __future__ import print_function
+import sys
 import gevent
 from sqlalchemy import create_engine, MetaData, Table, Column, Integer
+
+
+try:
+    xrange
+except:
+    assert sys.version_info >= (3,)
+    xrange = range
+
 
 def create_table_and_query(engine):
 

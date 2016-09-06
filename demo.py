@@ -1,5 +1,6 @@
 """ Demo of parallel queries using ``gsqlite3``. """
 
+from __future__ import print_function
 import os
 from functools import partial
 from random import randint
