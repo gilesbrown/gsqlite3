@@ -8,10 +8,10 @@ import gevent
 import sqlite3
 import gsqlite3
 
-
 filename = os.path.join(os.path.dirname(__file__), 'demo.sqlite')
 select_stmt = "SELECT * FROM example WHERE value >= ? AND value < ?"
 num_rows_to_fetch = 100000
+
 
 def populate(module, num_rows=1000000):
     con = module.connect(filename)
@@ -19,11 +19,12 @@ def populate(module, num_rows=1000000):
     (count,) = con.execute("SELECT count(1) FROM example").fetchone()
     if count < num_rows:
         num_rows -= count
-        values = [(randint(1, 1000000),) for _ in xrange(num_rows)]
-        print "Populating '{}' ...".format(filename)
+        values = [(randint(1, 1000000),) for _ in range(num_rows)]
+        print("Populating '{}' ...".format(filename))
         insert = "INSERT INTO example (value) VALUES (?)"
         con.executemany(insert, values)
         con.commit()
+    con.close()
 
 
 def query(module, lower, upper):
@@ -31,7 +32,7 @@ def query(module, lower, upper):
     cur = con.cursor()
     cur.execute(select_stmt, (lower, upper))
     cur.fetchmany(num_rows_to_fetch)
-
+    con.close()
 
 def query_using_greenlets(module):
     g1 = gevent.spawn(query, module, 10, 100)
@@ -49,11 +50,12 @@ def main():
     os.unlink(filename)
     return None
 
+
 def time_query_using_module(module):
     # This is largely copied verbatim from the 'timeit' module
     repeat = 3
     number = 10
-    verbose = False
+    verbose = True
     precision = 3
     stmt = partial(query_using_greenlets, module)
     t = Timer(stmt)
@@ -64,18 +66,18 @@ def time_query_using_module(module):
         return 1
     best = min(r)
     if verbose:
-        print "raw times:", " ".join(["%.*g" % (precision, x) for x in r])
-    print "%s: %d loops," % (module.__name__, number),
+        print("raw times:", " ".join(["%.*g" % (precision, x) for x in r]))
+    print("%s: %d loops," % (module.__name__, number))
     usec = best * 1e6 / number
     if usec < 1000:
-        print "best of %d: %.*g usec per loop" % (repeat, precision, usec)
+        print("best of %d: %.*g usec per loop" % (repeat, precision, usec))
     else:
         msec = usec / 1000
         if msec < 1000:
-            print "best of %d: %.*g msec per loop" % (repeat, precision, msec)
+            print("best of %d: %.*g msec per loop" % (repeat, precision, msec))
         else:
             sec = msec / 1000
-            print "best of %d: %.*g sec per loop" % (repeat, precision, sec)
+            print("best of %d: %.*g sec per loop" % (repeat, precision, sec))
 
 if __name__ == '__main__':
     main()

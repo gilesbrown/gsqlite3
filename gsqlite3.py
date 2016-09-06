@@ -89,8 +89,7 @@ for method in [sqlite3.Cursor.executemany,
                sqlite3.Cursor.executescript,
                sqlite3.Cursor.fetchone,
                sqlite3.Cursor.fetchmany,
-               sqlite3.Cursor.fetchall,
-               sqlite3.Cursor.next]:
+               sqlite3.Cursor.fetchall]:
     setattr(Cursor, method.__name__, _using_threadpool(method))
 
 
